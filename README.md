@@ -43,11 +43,12 @@ This repository demonstrates how to leverage **Claude Code** — Anthropic's AI-
 Whether you're building scoped apps, automating workflows, or creating custom UI components, this workflow lets you iterate in your local environment with full AI assistance and push to ServiceNow in one command.
 
 ```
-  Your IDE + Claude Code          ServiceNow SDK            ServiceNow Instance
-  ┌─────────────────────┐        ┌────────────────┐        ┌──────────────────┐
-  │  AI-assisted coding  │ ────▶  │  Build & Sync  │ ────▶  │  Live App Deploy  │
-  │  Instant suggestions │        │  Local ↔ Cloud │        │  Tables, UI, Flow │
-  └─────────────────────┘        └────────────────┘        └──────────────────┘
+  Your Terminal + Claude Code      ServiceNow SDK            ServiceNow Instance
+  ┌──────────────────────────┐    ┌────────────────┐        ┌──────────────────┐
+  │  AI-assisted coding       │───▶│  Build & Sync  │───────▶│  Live App Deploy  │
+  │  Describe → Claude writes │    │  now-sdk CLI   │        │  Tables, Rules,   │
+  │  Review → Approve → Done  │    │  npm run build │        │  Jobs, ACLs, Menus│
+  └──────────────────────────┘    └────────────────┘        └──────────────────┘
 ```
 
 ---
@@ -56,14 +57,19 @@ Whether you're building scoped apps, automating workflows, or creating custom UI
 
 ```
 SocietyMgmt/
-├── 📁 src/                     # Source files (Claude Code works here)
-│   ├── 📁 tables/              # Table definitions & business rules
-│   ├── 📁 ui/                  # UI Policies, Actions, Client Scripts
-│   ├── 📁 flows/               # Flow Designer definitions
-│   └── 📁 scripts/             # Script Includes & utilities
-├── 📁 now-ui/                  # Now Experience UI Components
-├── 📄 app.config.json          # ServiceNow app manifest
-├── 📄 package.json
+│
+├── 📁 src/
+│   └── 📁 fluent/                  # TypeScript (.now.ts) files — define your entire app
+│       ├── 📄 index.now.ts         # Barrel file — EVERY file must be exported here
+│       ├── 📁 tables/              # Table & column definitions
+│       ├── 📁 business-rules/      # Server-side automation on record events
+│       ├── 📁 script-includes/     # Reusable server-side utility classes
+│       ├── 📁 scheduled-jobs/      # Time-triggered background jobs
+│       ├── 📁 acls/                # Role-based security rules
+│       └── 📁 navigation/          # App menu & sidebar items
+│
+├── 📄 now.config.json              # App identity — scope, name, auth alias
+├── 📄 package.json                 # Build scripts & dependencies
 └── 📄 README.md
 ```
 
@@ -73,27 +79,25 @@ SocietyMgmt/
 
 Before getting started, ensure you have the following:
 
-| Requirement | Version | Link |
+| Requirement | Version | Notes |
 |---|---|---|
-| **Node.js** | `v18` or higher | [nodejs.org](https://nodejs.org) |
+| **Node.js** | `v18` or higher | Install via NVM — see Step 2.1 |
 | **npm** | `v9` or higher | Bundled with Node.js |
 | **Git** | Latest | [git-scm.com](https://git-scm.com) |
-| **ServiceNow Instance** | Utah / Vancouver / Washington+ | [developer.servicenow.com](https://developer.servicenow.com) |
-| **Anthropic Account** | Free or Pro | [claude.ai](https://claude.ai) |
+| **ServiceNow Instance** | Utah / Vancouver / Washington+ | Free PDI at [developer.servicenow.com](https://developer.servicenow.com) |
+| **Anthropic Account** | **Paid plan required** | Claude Pro, Teams, or Enterprise — see Step 1.1 |
 
 ---
 
 ## ⚡ Quick Setup
 
-> 🔗 **Prefer a guided, one-click experience?**
+> 🔗 **Prefer a guided, interactive experience?**
 >
-> Visit the interactive setup guide at:
+> Visit the step-by-step setup wizard at:
 >
-> ## 👉 `[QUICK SETUP WEBSITE URL — COMING SOON]`
+> ## 👉 `[QUICK SETUP WEBSITE URL]`
 >
-> *(Placeholder — replace this with your quick_setup website URL)*
->
-> The quick setup wizard walks you through every step below and automatically configures your ServiceNow instance connection.
+> *(Placeholder — the interactive wizard covers every command below with live copy buttons, OS-specific tabs, and inline troubleshooting.)*
 
 ---
 
@@ -104,7 +108,21 @@ Before getting started, ensure you have the following:
 
 <br/>
 
-### 1.1 Install Claude Code
+### 1.1 Account Requirement
+
+> ⚠️ **Claude Code requires a paid Anthropic plan.**
+> A **free Claude.ai account cannot be used** with Claude Code.
+>
+> You need one of the following:
+> - **Claude Pro** — personal subscription at [claude.ai](https://claude.ai)
+> - **Claude for Teams / Enterprise** — for organisations
+> - **Anthropic API key** — with billing enabled at [console.anthropic.com](https://console.anthropic.com)
+>
+> If you don't have a paid plan, sign up at [claude.ai](https://claude.ai) before continuing.
+
+---
+
+### 1.2 Install Claude Code
 
 Claude Code is Anthropic's official CLI that brings AI assistance directly into your terminal.
 
@@ -121,45 +139,44 @@ claude --version
 
 ---
 
-### 1.2 Authenticate with Anthropic
+### 1.3 Authenticate with Anthropic
 
 ```bash
-# Launch Claude Code — it will prompt you to authenticate
+# Launch Claude Code — it will prompt for authentication on first run
 claude
 ```
 
-On first launch, Claude Code will open a browser window. Log in with your **Anthropic / Claude.ai account** to complete OAuth authentication.
+On first launch, Claude Code automatically opens your browser and asks you to log in with your Anthropic account. Once you approve the OAuth grant, a session token is stored locally — you won't need to authenticate again.
 
-> 💡 **Tip:** Claude Code works with both free and Pro plans. Pro users get higher rate limits and access to more powerful models.
+> 💡 **Tip:** If the browser window doesn't open, check your terminal output for a manual authentication URL you can open directly.
 
 ---
 
-### 1.3 Open Your Project with Claude Code
+### 1.4 Open Your Project with Claude Code
 
-Navigate to this repository and start Claude Code:
+Navigate to this repository and start a session:
 
 ```bash
 # Clone the repo (if you haven't already)
 git clone <your-repo-url>
 cd SocietyMgmt
 
-# Launch Claude Code in the project directory
+# Launch Claude Code inside the project directory
 claude
 ```
 
-Claude Code will automatically read your project structure and be ready to assist with ServiceNow development.
+Claude Code reads your project files automatically on startup and is ready to assist.
 
 ---
 
-### 1.4 Configure Claude Code Settings (Optional)
+### 1.5 Configure Claude Code Settings (Optional)
 
-Create or edit `.claude/settings.json` in your project root to customise behaviour:
+Create `.claude/settings.json` in your project root to customise behaviour:
 
 ```json
 {
   "model": "claude-opus-4-6",
-  "autoApprove": ["Read", "Glob", "Grep"],
-  "theme": "dark"
+  "autoApprove": ["Read", "Glob", "Grep"]
 }
 ```
 
@@ -174,77 +191,128 @@ Create or edit `.claude/settings.json` in your project root to customise behavio
 
 <br/>
 
-### 2.1 Install the ServiceNow Extension for VS Code (Recommended)
+### 2.1 Install Node.js via NVM
 
-The ServiceNow SDK integrates with VS Code for the best local development experience.
+Install Node.js using NVM (Node Version Manager) rather than the direct installer — this avoids OS permission errors and lets you manage Node versions cleanly.
 
-1. Open **VS Code**
-2. Go to **Extensions** (`Cmd+Shift+X` / `Ctrl+Shift+X`)
-3. Search for **`ServiceNow`**
-4. Install **ServiceNow Extension for VS Code** by ServiceNow
+**Mac / Linux:**
+
+```bash
+# Install NVM
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+
+# Restart your terminal, then install and activate Node 18
+nvm install 18
+nvm use 18
+```
+
+**Windows:**
+
+Download and run `nvm-setup.exe` from the [nvm-windows releases page](https://github.com/coreybutler/nvm-windows/releases), then open Command Prompt and run:
+
+```
+nvm install 18
+nvm use 18
+```
 
 ---
 
-### 2.2 Install the Now CLI
+### 2.2 Install the ServiceNow SDK CLI
 
 ```bash
-# Install the ServiceNow Now CLI globally
-npm install -g @servicenow/now-cli
+# Install the official ServiceNow SDK globally
+npm install -g @servicenow/sdk
 ```
 
 Verify the installation:
 
 ```bash
-snc --version
+now-sdk --version
+# Expected: 4.4.x or higher
 ```
+
+> ⚠️ **`now-sdk: command not found` after install?**
+> This means npm's global bin folder isn't on your `PATH`. Run `npm config get prefix` to find the path, then add `/bin` to your shell config:
+> ```bash
+> export PATH="$(npm config get prefix)/bin:$PATH"
+> ```
+> Then run `source ~/.zshrc` (or `~/.bashrc`) and retry.
 
 ---
 
-### 2.3 Configure Instance Connection
+### 2.3 Authenticate with Your ServiceNow Instance
+
+The SDK stores credentials securely in your OS keychain (macOS Keychain / Windows Credential Manager / Linux Secret Service) — nothing is written to project files.
+
+**Basic Auth** (fastest to set up):
 
 ```bash
-# Initialize connection to your ServiceNow instance
-snc configure profile set
-
-# You will be prompted for:
-#   Profile name    → e.g., my-dev-instance
-#   Instance URL    → https://<your-instance>.service-now.com
-#   Username        → your ServiceNow username
-#   Password        → your ServiceNow password (or OAuth token)
+# Replace <your-instance> with your actual instance subdomain
+# e.g., for https://mydev.service-now.com → use: mydev
+now-sdk auth --add <your-instance>
 ```
 
-Test the connection:
+The SDK will prompt for your username and password interactively.
+
+**OAuth** (recommended for SSO environments):
 
 ```bash
-snc configure profile list
+# The SDK will prompt you to select OAuth, then open your browser for login
+now-sdk auth --add <your-instance>
 ```
+
+After authenticating, verify the connection was saved:
+
+```bash
+now-sdk auth --list
+# Expected: dev → https://yourcompany.service-now.com (basic)
+```
+
+> 💡 **Using a Personal Developer Instance (PDI)?** Log in to [developer.servicenow.com](https://developer.servicenow.com) to find your instance URL and credentials. Your user must have the **admin** role to deploy apps.
+
+> ⚠️ **Authentication failing?** Common causes: (1) SSO/MFA enforced — use OAuth instead, (2) IP allowlisting — ensure your machine's IP is permitted, (3) PDI is hibernating — log in to developer.servicenow.com and wake it up first.
 
 ---
 
-### 2.4 Install Project Dependencies
+### 2.4 Initialise the Project
 
 ```bash
-# Install all project npm dependencies
+# Run inside your project folder
+now-sdk init
+```
+
+The SDK will prompt you for three values:
+
+| Prompt | Example Value | Notes |
+|---|---|---|
+| App name | `Society Management System` | Display name shown in ServiceNow |
+| Scope prefix | `x_society` | Namespace — prevents conflicts with other apps |
+| Auth alias | `dev` | The alias you registered in Step 2.3 |
+
+---
+
+### 2.5 Install Dependencies
+
+```bash
 npm install
 ```
 
+> Success output: `added 312 packages, and audited 313 packages in 28s`
+> Any `npm warn deprecated` lines are safe to ignore — they come from the SDK's own dependencies.
+
 ---
 
-### 2.5 Scaffold or Open the App
-
-**If starting fresh:**
+### 2.6 Fetch Type Definitions from Your Instance
 
 ```bash
-# Create a new scoped application scaffold
-snc app create --name "SocietyMgmt" --scope "x_<your_prefix>_societymgmt"
+npm run types
 ```
 
-**If working with this existing repo:**
+This connects to your instance and downloads TypeScript type declarations for every table, field, and API available to your scope. The compiler uses these to validate your Fluent files — without them, every ServiceNow-specific reference will show as a type error and the build will fail.
 
-```bash
-# Pull the latest app metadata from your instance
-snc app pull --profile my-dev-instance
-```
+> ⏱ Takes **1–3 minutes** on first run. Types are written to a `.types/` folder and should be committed to git so teammates don't need to fetch them individually.
+
+> ⚠️ **Re-run `npm run types` any time you:** add a table directly in the ServiceNow UI, modify existing table columns outside the SDK, or upgrade to a new major SDK version.
 
 </details>
 
@@ -259,97 +327,96 @@ snc app pull --profile my-dev-instance
 
 ### 3.1 Develop Locally with Claude Code
 
-Use Claude Code to build and modify your app. Ask it anything:
-
-```
-> Add a new table called "Society Members" with fields for name, email, and membership tier
-
-> Create a business rule that sends an email when a membership expires
-
-> Build a client script that validates the email field format on submit
-```
-
-Claude Code will read your project context, write the code, and place files in the correct SDK directories.
-
----
-
-### 3.2 Validate Before Deploying
+Start Claude Code from inside your project folder and describe what you want to build:
 
 ```bash
-# Lint and validate your app source
-npm run lint
-
-# Run any local tests
-npm test
+claude
 ```
+
+Example prompts:
+
+```
+Create all four core tables: flat, maintenance_bill, service_request, visitor_log
+
+Add a business rule that auto-sets opened_on on insert and resolved_on when status changes to resolved
+
+Write a Script Include called SocietyUtils with isSlotAvailable() and getUnpaidBillsByFlat() methods
+
+Create scheduled jobs to mark overdue bills daily and generate monthly bills on the 1st
+```
+
+Claude Code will read your project context, write the `.now.ts` Fluent files, and add the required exports to `src/fluent/index.now.ts`.
+
+> ⚠️ **The Barrel File Rule:** Every Fluent file you create must be exported from `src/fluent/index.now.ts`. If a file is missing from that export, it will be **silently skipped** at deploy time — no error, just missing from the instance.
 
 ---
 
-### 3.3 Push Changes to ServiceNow
+### 3.2 Build (Compile Only — Nothing Sent to Instance)
+
+Exit Claude Code (`Ctrl+C`), then compile:
 
 ```bash
-# Deploy the application to your connected instance
-snc app push --profile my-dev-instance
+npm run build
 ```
 
-Or push a specific component:
+This compiles your TypeScript Fluent files to ServiceNow XML and checks for errors. It does **not** touch your instance. Always run this before deploying to catch problems early.
+
+> **Success:** `✔ Compiled 4 modules   ✔ No errors found   Build completed in 2.1s`
+
+> **Got an error?** The message includes the exact file and line number. Copy it, paste into Claude Code: *"Fix this build error: [paste error]"* — then build again.
+
+---
+
+### 3.3 Deploy to ServiceNow
 
 ```bash
-# Push only a specific file or directory
-snc app push --profile my-dev-instance --source src/tables/society_member.json
+npm run deploy
+```
+
+This runs the build, packages everything, authenticates via your stored keychain alias, and uploads to your instance. Your app goes live.
+
+**Successful deploy output:**
+
+```
+✔ Table: x_society_flat
+✔ Table: x_society_maintenance_bill
+✔ Table: x_society_service_request
+✔ Table: x_society_visitor_log
+✔ BusinessRule: Set Dates on Insert/Resolve
+✔ BusinessRule: Prevent Double Booking
+✔ ScriptInclude: SocietyUtils
+✔ ScriptInclude: MaintenanceBillingEngine
+✔ ScheduledJob: Society Mark Overdue Bills
+✔ ScheduledJob: Society Generate Monthly Bills
+✔ ACL: x_society (8 rules)
+✔ AppMenu: Society Management
+✔ Deployed successfully in 24.3s
 ```
 
 ---
 
-### 3.4 Verify Deployment
+### 3.4 Verify the Deployment in ServiceNow
 
-After a successful push, open your ServiceNow instance and navigate to:
+Open your instance in a browser and run through these checks:
 
-```
-🌐  https://<your-instance>.service-now.com/
-    → Studio → SocietyMgmt
-```
-
-You should see all your changes reflected live in the app.
+| Check | Where to Look | What to Confirm |
+|---|---|---|
+| **App menu** | Left sidebar → type `Society` in the App Navigator filter | **Society Management** menu appears with all items |
+| **Tables** | System Definition → Tables → filter by `x_society` | All 4 tables present: `x_society_flat`, `x_society_maintenance_bill`, `x_society_service_request`, `x_society_visitor_log` |
+| **Business Rules** | System Definition → Business Rules → filter Name contains `society` | Both rules active: **Set Dates on Insert/Resolve** and **Prevent Double Booking** |
+| **Scheduled Jobs** | System Definition → Scheduled Jobs → filter Name contains `Society` | Both jobs active: **Society: Mark Overdue Bills** (daily, 01:00 AM) and **Society: Generate Monthly Bills** (monthly, 1st, 06:00 AM) |
+| **ACLs** | Security → Access Control (ACL) → filter Name contains `x_society` | 8 rules covering read, create, write, and delete across all four tables |
 
 ---
 
-### 3.5 (Optional) Automate with CI/CD
+### 3.5 Other Useful Commands
 
-Add this to your `.github/workflows/deploy.yml` to auto-deploy on push to `main`:
-
-```yaml
-name: Deploy to ServiceNow
-
-on:
-  push:
-    branches: [main]
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
-      - name: Install Now CLI
-        run: npm install -g @servicenow/now-cli
-
-      - name: Configure Profile
-        run: |
-          snc configure profile set \
-            --name prod \
-            --url ${{ secrets.SN_INSTANCE_URL }} \
-            --username ${{ secrets.SN_USERNAME }} \
-            --password ${{ secrets.SN_PASSWORD }}
-
-      - name: Deploy App
-        run: snc app push --profile prod
-```
+| Command | What It Does | When to Use |
+|---|---|---|
+| `npm run build` | Compiles TypeScript to XML, checks for errors | Before every deploy |
+| `npm run deploy` | Builds and pushes everything to ServiceNow | When ready to go live |
+| `npm run types` | Re-fetches type definitions from instance | When schema was changed directly in the ServiceNow UI |
+| `npm run transform` | Pulls current instance state to local files | To import changes made via Studio — **always commit local work first** |
 
 </details>
 
@@ -361,27 +428,38 @@ jobs:
 SocietyMgmt/
 │
 ├── 📁 .claude/
-│   └── settings.json               # Claude Code project settings
+│   └── 📄 skills/society.md        # Claude Code briefing — loaded every session
 │
 ├── 📁 src/
-│   ├── 📁 tables/
-│   │   ├── society_member.json     # Member table definition
-│   │   └── membership_tier.json    # Tier table definition
-│   │
-│   ├── 📁 business_rules/
-│   │   └── on_member_expire.js     # Expiry notification rule
-│   │
-│   ├── 📁 client_scripts/
-│   │   └── validate_email.js       # Email validation
-│   │
-│   └── 📁 script_includes/
-│       └── SocietyUtils.js         # Shared utility functions
+│   └── 📁 fluent/
+│       ├── 📄 index.now.ts          # ⚠️ Barrel file — every file must be exported here
+│       │
+│       ├── 📁 tables/
+│       │   ├── 📄 flat.now.ts                   # Master flat/unit registry
+│       │   ├── 📄 maintenance_bill.now.ts        # Monthly billing per flat
+│       │   ├── 📄 service_request.now.ts         # Complaints, bookings & notices
+│       │   └── 📄 visitor_log.now.ts             # Gate entry log
+│       │
+│       ├── 📁 business-rules/
+│       │   ├── 📄 set-dates.now.ts               # Auto-fills opened_on & resolved_on
+│       │   └── 📄 prevent-double-booking.now.ts  # Blocks overlapping facility bookings
+│       │
+│       ├── 📁 script-includes/
+│       │   ├── 📄 SocietyUtils.now.ts            # isSlotAvailable(), getUnpaidBillsByFlat()
+│       │   └── 📄 MaintenanceBillingEngine.now.ts # generateMonthlyBills(), markOverdueBills()
+│       │
+│       ├── 📁 scheduled-jobs/
+│       │   ├── 📄 mark-overdue-bills.now.ts      # Daily at 1AM — marks unpaid past-due bills
+│       │   └── 📄 generate-monthly-bills.now.ts  # Monthly on 1st — creates bill records
+│       │
+│       ├── 📁 acls/
+│       │   └── 📄 society-acls.now.ts            # Role-based read/write/delete rules
+│       │
+│       └── 📁 navigation/
+│           └── 📄 app-menu.now.ts                # Sidebar menu items
 │
-├── 📁 now-ui/
-│   └── 📁 components/             # Now Experience components
-│
-├── 📄 app.config.json              # App manifest & metadata
-├── 📄 package.json
+├── 📄 now.config.json              # App scope, name & auth alias
+├── 📄 package.json                 # npm scripts: build, deploy, types, transform
 └── 📄 README.md
 ```
 
@@ -389,29 +467,39 @@ SocietyMgmt/
 
 ## 💡 Usage Examples
 
-### Ask Claude Code to build a feature
+### Build the entire app in one Claude Code session
 
 ```bash
-# Inside your project directory, run:
+# From inside your project directory
 claude
-
-# Example prompts:
-"Create a Flow Designer workflow for new member onboarding"
-"Add a UI Action button to send a welcome email from the member form"
-"Write a scheduled job that checks for expired memberships daily"
-"Generate a dashboard with KPIs for active members by tier"
 ```
 
-### Sync local changes back from your instance
+Example prompts to get started:
 
-```bash
-snc app pull --profile my-dev-instance
+```
+Create the Society Management app — 4 tables (flat, maintenance_bill,
+service_request, visitor_log), 2 business rules, 2 script includes,
+2 scheduled jobs, ACLs, and navigation. Scope prefix is x_society.
+
+Add a new complaint category called "pest_control" to the service_request table
+
+Fix this build error: [paste the exact error output from npm run build]
+
+The MaintenanceBillingEngine.generateMonthlyBills() method needs to skip
+flats where active = false — update the logic accordingly
 ```
 
-### Create a new app version
+### Pull instance changes back to local files
 
 ```bash
-snc app version create --profile my-dev-instance --version 1.1.0
+# Always commit your local work before running this
+npm run transform
+```
+
+### Refresh type definitions after a schema change
+
+```bash
+npm run types
 ```
 
 ---
@@ -419,41 +507,70 @@ snc app version create --profile my-dev-instance --version 1.1.0
 ## 🔧 Troubleshooting
 
 <details>
-<summary><strong>Claude Code won't authenticate</strong></summary>
+<summary><strong>Claude Code won't start / authentication fails</strong></summary>
 
-- Ensure you have a valid Claude.ai account at [claude.ai](https://claude.ai)
+- Claude Code requires a **paid Anthropic plan** — free accounts cannot authenticate
 - Try running `claude logout` then `claude` again to re-authenticate
-- Check your network/firewall isn't blocking `claude.ai`
+- If the browser window doesn't open, look for a manual auth URL in the terminal output
+- Check your network or firewall isn't blocking `claude.ai` or `api.anthropic.com`
 
 </details>
 
 <details>
-<summary><strong>`snc` command not found</strong></summary>
+<summary><strong>`now-sdk: command not found` after install</strong></summary>
+
+The npm global bin folder isn't on your `PATH`. Find and add it:
 
 ```bash
-# Ensure global npm bin is in your PATH
-export PATH="$(npm bin -g):$PATH"
+# Find where npm installs global packages
+npm config get prefix
 
-# Or reinstall
-npm install -g @servicenow/now-cli
+# Add /bin to your shell config (replace the path with your actual output above)
+echo 'export PATH="$(npm config get prefix)/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+
+# Retry
+now-sdk --version
 ```
 
 </details>
 
 <details>
-<summary><strong>App push fails with 401 Unauthorized</strong></summary>
+<summary><strong>`now-sdk auth` fails with 401 Unauthorized</strong></summary>
 
-- Verify your instance credentials: `snc configure profile list`
-- Ensure your ServiceNow user has the **admin** or **app_engine_studio_user** role
-- Check your instance URL format: `https://yourinstance.service-now.com` (no trailing slash)
+Common causes:
+1. **SSO or MFA enforced** — use OAuth auth type instead of Basic, or ask your admin to create a dedicated service account with basic auth enabled under System Security → Users
+2. **IP allowlisting** on the instance — ensure your machine's IP is permitted
+3. **PDI is hibernating** — log in to [developer.servicenow.com](https://developer.servicenow.com) and wake it up first, then retry
 
 </details>
 
 <details>
-<summary><strong>Claude Code modifies wrong files</strong></summary>
+<summary><strong>Deploy succeeds but app doesn't appear in ServiceNow</strong></summary>
 
-- Add a `CLAUDE.md` file to your project root with instructions about file conventions
-- Use `.claudeignore` to exclude directories (same syntax as `.gitignore`)
+- Menus can take up to 30 seconds to appear after a fresh deploy — wait and refresh
+- Type `Society` in the App Navigator filter field to search directly
+- Check that your user account has the correct role assigned (at minimum: `admin` on a PDI)
+
+</details>
+
+<details>
+<summary><strong>Build error: TypeScript type not found</strong></summary>
+
+Your type definitions are stale or missing. Re-fetch them:
+
+```bash
+npm run types
+```
+
+Then run `npm run build` again.
+
+</details>
+
+<details>
+<summary><strong>A file I created isn't showing up after deploy</strong></summary>
+
+You likely forgot to export it from the barrel file. Open `src/fluent/index.now.ts` and add an export for the missing file. Every Fluent file **must** be listed there or it will be silently skipped at deploy time.
 
 </details>
 
