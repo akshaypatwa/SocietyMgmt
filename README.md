@@ -95,9 +95,9 @@ Before getting started, ensure you have the following:
 >
 > Visit the step-by-step setup wizard at:
 >
-> ## 👉 `[QUICK SETUP WEBSITE URL]`
+> ## 👉 [setup-guide-kohl.vercel.app](https://setup-guide-kohl.vercel.app/)
 >
-> *(Placeholder — the interactive wizard covers every command below with live copy buttons, OS-specific tabs, and inline troubleshooting.)*
+> *(The interactive wizard covers every command below with live copy buttons, OS-specific tabs, and inline troubleshooting.)*
 
 ---
 
@@ -158,7 +158,7 @@ Navigate to this repository and start a session:
 
 ```bash
 # Clone the repo (if you haven't already)
-git clone <your-repo-url>
+git clone https://github.com/akshaypatwa/SocietyMgmt
 cd SocietyMgmt
 
 # Launch Claude Code inside the project directory
