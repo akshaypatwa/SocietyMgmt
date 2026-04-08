@@ -1,4 +1,5 @@
 import {
+    BooleanColumn,
     ChoiceColumn,
     DateColumn,
     DecimalColumn,
@@ -59,6 +60,11 @@ export const x_society_maintenance_bill = Table({
                 paid: { label: 'Paid' },
                 overdue: { label: 'Overdue' },
             },
+        }),
+        is_overdue: BooleanColumn({
+            label: 'Overdue',
+            default: 'false',
+            hint: 'Automatically set when the due date has passed and the bill is still unpaid',
         }),
         notes: MultiLineTextColumn({
             label: 'Notes',

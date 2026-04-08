@@ -9,9 +9,33 @@ declare global {
                         table: 'sys_module'
                         id: 'db84035330a3457c9d9ab3fa9930e48d'
                     }
+                    flag_overdue_bill_br: {
+                        table: 'sys_script'
+                        id: 'c42e6424dfa24d598e8b43204640bd5c'
+                    }
                     package_json: {
                         table: 'sys_module'
                         id: '14fae2d182ba48c8ad255989f2e84ba3'
+                    }
+                    society_app_menu: {
+                        table: 'sys_app_application'
+                        id: '97e793ffa49b435887ca045be3c3de62'
+                    }
+                    society_flat_module: {
+                        table: 'sys_app_module'
+                        id: '807c0d0b47e94dec883ca4233403035b'
+                    }
+                    society_maintenance_bill_module: {
+                        table: 'sys_app_module'
+                        id: 'a549de30c05d4fa7ae9d7ecd709c55d3'
+                    }
+                    society_service_request_module: {
+                        table: 'sys_app_module'
+                        id: '89110446e9e24f45ab8146d90bcbd56a'
+                    }
+                    society_visitor_log_module: {
+                        table: 'sys_app_module'
+                        id: 'fb9caef1675a441982b7d3b46c8e85e3'
                     }
                 }
                 composite: [
@@ -596,6 +620,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: '5a75d172103b4c6e8a2dd2c0de4d68c0'
+                        key: {
+                            name: 'x_society_maintenance_bill'
+                            element: 'is_overdue'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_dictionary'
                         id: '5c8900cb42d348a7b5f097cfec0b084a'
                         key: {
@@ -863,6 +896,14 @@ declare global {
                             name: 'x_society_visitor_log'
                             element: 'id_proof_type'
                             value: 'other'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '889d18885d13461b96d0b815d001e38a'
+                        key: {
+                            name: 'x_society_maintenance_bill'
+                            element: 'is_overdue'
                         }
                     },
                     {

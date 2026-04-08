@@ -62,11 +62,11 @@ SocietyMgmt/
 │   └── 📁 fluent/                  # TypeScript (.now.ts) files — define your entire app
 │       ├── 📄 index.now.ts         # Barrel file — EVERY file must be exported here
 │       ├── 📁 tables/              # Table & column definitions
-│       ├── 📁 business-rules/      # Server-side automation on record events
-│       ├── 📁 script-includes/     # Reusable server-side utility classes
-│       ├── 📁 scheduled-jobs/      # Time-triggered background jobs
+│       ├── 📁 business_rules/      # Server-side automation on record events
+│       ├── 📁 script_includes/     # Reusable server-side utility classes
+│       ├── 📁 scheduled_jobs/      # Time-triggered background jobs
 │       ├── 📁 acls/                # Role-based security rules
-│       └── 📁 navigation/          # App menu & sidebar items
+│       └── 📄 navigation.now.ts    # App menu & sidebar items
 │
 ├── 📄 now.config.json              # App identity — scope, name, auth alias
 ├── 📄 package.json                 # Build scripts & dependencies
@@ -338,11 +338,13 @@ Example prompts:
 ```
 Create all four core tables: flat, maintenance_bill, service_request, visitor_log
 
-Add a business rule that auto-sets opened_on on insert and resolved_on when status changes to resolved
+Add a business rule that flags maintenance bills as overdue when the due date has passed
 
 Write a Script Include called SocietyUtils with isSlotAvailable() and getUnpaidBillsByFlat() methods
 
 Create scheduled jobs to mark overdue bills daily and generate monthly bills on the 1st
+
+Add navigation menu items for all four tables under the Society Management app menu
 ```
 
 Claude Code will read your project context, write the `.now.ts` Fluent files, and add the required exports to `src/fluent/index.now.ts`.
@@ -375,23 +377,19 @@ npm run deploy
 
 This runs the build, packages everything, authenticates via your stored keychain alias, and uploads to your instance. Your app goes live.
 
-**Successful deploy output:**
+**Successful deploy output (example):**
 
 ```
 ✔ Table: x_society_flat
 ✔ Table: x_society_maintenance_bill
 ✔ Table: x_society_service_request
 ✔ Table: x_society_visitor_log
-✔ BusinessRule: Set Dates on Insert/Resolve
-✔ BusinessRule: Prevent Double Booking
-✔ ScriptInclude: SocietyUtils
-✔ ScriptInclude: MaintenanceBillingEngine
-✔ ScheduledJob: Society Mark Overdue Bills
-✔ ScheduledJob: Society Generate Monthly Bills
-✔ ACL: x_society (8 rules)
+✔ BusinessRule: Flag Overdue Bill
 ✔ AppMenu: Society Management
-✔ Deployed successfully in 24.3s
+✔ Deployed successfully in 12.4s
 ```
+
+> The exact output reflects what is defined in your Fluent files. As you add more files (script includes, scheduled jobs, ACLs), they will appear here.
 
 ---
 
@@ -403,9 +401,9 @@ Open your instance in a browser and run through these checks:
 |---|---|---|
 | **App menu** | Left sidebar → type `Society` in the App Navigator filter | **Society Management** menu appears with all items |
 | **Tables** | System Definition → Tables → filter by `x_society` | All 4 tables present: `x_society_flat`, `x_society_maintenance_bill`, `x_society_service_request`, `x_society_visitor_log` |
-| **Business Rules** | System Definition → Business Rules → filter Name contains `society` | Both rules active: **Set Dates on Insert/Resolve** and **Prevent Double Booking** |
-| **Scheduled Jobs** | System Definition → Scheduled Jobs → filter Name contains `Society` | Both jobs active: **Society: Mark Overdue Bills** (daily, 01:00 AM) and **Society: Generate Monthly Bills** (monthly, 1st, 06:00 AM) |
-| **ACLs** | Security → Access Control (ACL) → filter Name contains `x_society` | 8 rules covering read, create, write, and delete across all four tables |
+| **Business Rules** | System Definition → Business Rules → filter Name contains `society` | **Flag Overdue Bill** rule is active |
+
+> As you add more Fluent files (scheduled jobs, ACLs, script includes), add the corresponding verification steps here.
 
 ---
 
@@ -428,35 +426,39 @@ Open your instance in a browser and run through these checks:
 SocietyMgmt/
 │
 ├── 📁 .claude/
-│   └── 📄 skills/society.md        # Claude Code briefing — loaded every session
+│   └── 📁 skills/
+│       └── 📁 society/                        # Claude Code skill — loaded every session
+│           ├── 📄 SKILL.md                    # Main skill briefing & instructions
+│           └── 📁 references/
+│               ├── 📄 roles.md                # Role definitions
+│               ├── 📄 server-automation.md    # Business rules & scheduled job patterns
+│               └── 📄 tables.md               # Table & field reference
+│
+├── 📁 docs/
+│   └── 📄 field-reference.md                  # Field reference documentation
+│
+├── 📁 Setup Guide/
+│   ├── 📄 quick_setup.html                    # Interactive setup wizard (hosted on Vercel)
+│   ├── 📄 quick_setup.css
+│   └── 📄 quick_setup.js
 │
 ├── 📁 src/
 │   └── 📁 fluent/
-│       ├── 📄 index.now.ts          # ⚠️ Barrel file — every file must be exported here
+│       ├── 📄 index.now.ts                    # ⚠️ Barrel file — every file must be exported here
+│       │
+│       ├── 📁 generated/
+│       │   └── 📄 keys.ts                     # Auto-generated field key constants
 │       │
 │       ├── 📁 tables/
-│       │   ├── 📄 flat.now.ts                   # Master flat/unit registry
-│       │   ├── 📄 maintenance_bill.now.ts        # Monthly billing per flat
-│       │   ├── 📄 service_request.now.ts         # Complaints, bookings & notices
-│       │   └── 📄 visitor_log.now.ts             # Gate entry log
+│       │   ├── 📄 flat.now.ts                 # Master flat/unit registry
+│       │   ├── 📄 maintenance_bill.now.ts     # Monthly billing per flat
+│       │   ├── 📄 service_request.now.ts      # Complaints, bookings & notices
+│       │   └── 📄 visitor_log.now.ts          # Gate entry log
 │       │
-│       ├── 📁 business-rules/
-│       │   ├── 📄 set-dates.now.ts               # Auto-fills opened_on & resolved_on
-│       │   └── 📄 prevent-double-booking.now.ts  # Blocks overlapping facility bookings
+│       ├── 📁 business_rules/
+│       │   └── 📄 flag_overdue_bill.now.ts    # Flags maintenance bills as overdue
 │       │
-│       ├── 📁 script-includes/
-│       │   ├── 📄 SocietyUtils.now.ts            # isSlotAvailable(), getUnpaidBillsByFlat()
-│       │   └── 📄 MaintenanceBillingEngine.now.ts # generateMonthlyBills(), markOverdueBills()
-│       │
-│       ├── 📁 scheduled-jobs/
-│       │   ├── 📄 mark-overdue-bills.now.ts      # Daily at 1AM — marks unpaid past-due bills
-│       │   └── 📄 generate-monthly-bills.now.ts  # Monthly on 1st — creates bill records
-│       │
-│       ├── 📁 acls/
-│       │   └── 📄 society-acls.now.ts            # Role-based read/write/delete rules
-│       │
-│       └── 📁 navigation/
-│           └── 📄 app-menu.now.ts                # Sidebar menu items
+│       └── 📄 navigation.now.ts               # App menu & sidebar items
 │
 ├── 📄 now.config.json              # App scope, name & auth alias
 ├── 📄 package.json                 # npm scripts: build, deploy, types, transform
@@ -478,15 +480,15 @@ Example prompts to get started:
 
 ```
 Create the Society Management app — 4 tables (flat, maintenance_bill,
-service_request, visitor_log), 2 business rules, 2 script includes,
-2 scheduled jobs, ACLs, and navigation. Scope prefix is x_society.
+service_request, visitor_log), business rules, script includes,
+scheduled jobs, ACLs, and navigation. Scope prefix is x_society.
 
 Add a new complaint category called "pest_control" to the service_request table
 
 Fix this build error: [paste the exact error output from npm run build]
 
-The MaintenanceBillingEngine.generateMonthlyBills() method needs to skip
-flats where active = false — update the logic accordingly
+The flag_overdue_bill business rule needs to also send a notification —
+update the logic accordingly
 ```
 
 ### Pull instance changes back to local files
