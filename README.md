@@ -63,10 +63,10 @@ SocietyMgmt/
 │       ├── 📄 index.now.ts         # Barrel file — EVERY file must be exported here
 │       ├── 📁 tables/              # Table & column definitions
 │       ├── 📁 business_rules/      # Server-side automation on record events
-│       ├── 📁 script_includes/     # Reusable server-side utility classes
-│       ├── 📁 scheduled_jobs/      # Time-triggered background jobs
-│       ├── 📁 acls/                # Role-based security rules
-│       └── 📄 navigation.now.ts    # App menu & sidebar items
+│       ├── 📄 navigation.now.ts    # App menu & sidebar items
+│       ├── 📁 script_includes/     # (add when needed) Reusable server-side utility classes
+│       ├── 📁 scheduled_jobs/      # (add when needed) Time-triggered background jobs
+│       └── 📁 acls/                # (add when needed) Role-based security rules
 │
 ├── 📄 now.config.json              # App identity — scope, name, auth alias
 ├── 📄 package.json                 # Build scripts & dependencies
@@ -363,7 +363,7 @@ npm run build
 
 This compiles your TypeScript Fluent files to ServiceNow XML and checks for errors. It does **not** touch your instance. Always run this before deploying to catch problems early.
 
-> **Success:** `✔ Compiled 4 modules   ✔ No errors found   Build completed in 2.1s`
+> **Success:** `✔ Compiled 6 files   ✔ No errors found   Build completed in 2.1s`
 
 > **Got an error?** The message includes the exact file and line number. Copy it, paste into Claude Code: *"Fix this build error: [paste error]"* — then build again.
 
@@ -384,8 +384,12 @@ This runs the build, packages everything, authenticates via your stored keychain
 ✔ Table: x_society_maintenance_bill
 ✔ Table: x_society_service_request
 ✔ Table: x_society_visitor_log
-✔ BusinessRule: Flag Overdue Bill
+✔ BusinessRule: Flag Overdue Maintenance Bill
 ✔ AppMenu: Society Management
+✔ Module: Flats
+✔ Module: Maintenance Bills
+✔ Module: Service Requests
+✔ Module: Visitor Log
 ✔ Deployed successfully in 12.4s
 ```
 
@@ -399,9 +403,10 @@ Open your instance in a browser and run through these checks:
 
 | Check | Where to Look | What to Confirm |
 |---|---|---|
-| **App menu** | Left sidebar → type `Society` in the App Navigator filter | **Society Management** menu appears with all items |
+| **App menu** | Left sidebar → type `Society` in the App Navigator filter | **Society Management** menu appears |
+| **Navigation modules** | Expand the Society Management menu in the App Navigator | All 4 items visible: **Flats**, **Maintenance Bills**, **Service Requests**, **Visitor Log** |
 | **Tables** | System Definition → Tables → filter by `x_society` | All 4 tables present: `x_society_flat`, `x_society_maintenance_bill`, `x_society_service_request`, `x_society_visitor_log` |
-| **Business Rules** | System Definition → Business Rules → filter Name contains `society` | **Flag Overdue Bill** rule is active |
+| **Business Rules** | System Definition → Business Rules → filter Name contains `society` | **Flag Overdue Maintenance Bill** rule is active |
 
 > As you add more Fluent files (scheduled jobs, ACLs, script includes), add the corresponding verification steps here.
 
